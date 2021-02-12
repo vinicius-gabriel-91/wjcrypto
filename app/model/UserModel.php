@@ -1,13 +1,19 @@
 <?php
 
 
-class CustomerModel
+class UserModel
 {
     private $connection;
+    private $userId;
 
     public function __construct()
     {
         $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
+    }
+
+    public function getUserId()
+    {
+        return $this->userId;
     }
 
     public function adduser($name,$surname,$email,$password,$business,$taxvat,$docNumber,$corporateName = null): bool
@@ -30,14 +36,6 @@ class CustomerModel
         ]);
     }
 }
-
-ini_set('display_errors', 'on');
-$dados = ['MAISA', 'ALVES', 'MA565ISA@MAISA', '123456', '0', '12345678910', '123456789', 'NULL'];
-$conta = new CustomerModel();
-$resultado = $conta->adduser('MAISA', 'ALVES', 'MasdfasSA@MAISA', '123456', 0, '12345678910', '123456789');
-
-var_dump($resultado);
-
 
 ?>
 
