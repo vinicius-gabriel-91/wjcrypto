@@ -7,7 +7,7 @@ class UserModel
     private $id;
     private $name;
     private $surname;
-    public $email;
+    private $email;
     private $password;
     private $business;
     private $taxvat;
@@ -21,7 +21,8 @@ class UserModel
 
     public function getInfo($email, $password)
     {
-        $stmt = $this->connection->prepare("SELECT 
+        $stmt = $this->connection->prepare("
+                                                    SELECT 
                                                         id,
                                                         first_name,
                                                         last_name,
@@ -74,6 +75,10 @@ class UserModel
                             $corporateName = null
                             ): bool
     {
+        $name = $this->nameTreatment($name);
+        $surname = $this->surnameTreatment($surname);
+        $corporateName = $this->corporateNameTreatment($corporateName);
+
         $stmt = $this->connection->prepare(
                                     "INSERT INTO
                                                  user
@@ -97,7 +102,7 @@ class UserModel
                                         );
 
 
-        return $stmt->execute([
+        $stmt->execute([
             ":first_name" => $name,
             ":last_name" => $surname,
             ":email" => $email,
@@ -111,12 +116,13 @@ class UserModel
 
     public function updateUser()
     {
-       $stmt = $this->connection->prepare("UPDATE
-                                                 user
+       $stmt = $this->connection->prepare("
+                                                 UPDATE
+                                                    user
                                                  SET
                                                     email = :email,
                                                     password = :password
-                                                WHERE
+                                                 WHERE
                                                     id = :id
                                          ");
         $stmt->execute([
@@ -127,8 +133,42 @@ class UserModel
         ]);
 
     }
-}
 
+    private function nameTreatment($name)
+    {
+        $name = strtoupper($name);
+        $name = trim($name);
+
+        return $name;
+    }
+
+    private function surnameTreatment($surname)
+    {
+        $surname = strtoupper($surname);
+        $surname = trim($surname);
+        return $surname;
+    }
+
+    private function corporateNameTreatment($corporateName)
+    {
+        $corporateName = strtoupper($corporateName);
+        $corporateName = trim($corporateName);
+
+        return $corporateName;
+    }
+
+    public function deleteUser($userId)
+    {
+        $stmt = $this->connection->prepare("
+                                            DELETE
+                                            FROM
+                                                user
+                                            WHERE
+                                                id = :userId;
+                                            ");
+        $stmt->execute([":userId" => $userId]);
+    }
+}
 ?>
 
 
