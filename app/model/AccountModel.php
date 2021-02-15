@@ -49,7 +49,7 @@ class AccountModel
         $this->balance = $selectResult["balance"];
     }
 
-    public function updateBalance()
+    public function updateBalance($userId)
     {
         $stmt = $this->connection->prepare(
                                     "UPDATE
@@ -57,9 +57,9 @@ class AccountModel
                                            SET 
                                                 balance = :balance
                                            WHERE
-                                                code = :code
+                                                user_id = :userId
                                           ");
-        $stmt->execute([":balance" => $this->balance, ":code" => $this->code]);
+        $stmt->execute([":balance" => $this->balance, ":userId" => $userId]);
     }
 
     public function deleteAccount($userId)
