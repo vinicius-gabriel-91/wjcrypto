@@ -11,13 +11,17 @@ class TransactionModel
 
     public function getInfo($id)
     {
-        $stmt = $this->connection->prepare("SELECT * FROM transaction_type WHERE id = :id;");
+        $stmt = $this->connection->prepare("SELECT
+                                                        * 
+                                                    FROM 
+                                                         transaction_type 
+                                                    WHERE 
+                                                          id = :id;");
         $stmt->execute([":id" => $id]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $value = $result["0"];
         $description = $value["description"];
         return $description;
-
     }
 }
 
