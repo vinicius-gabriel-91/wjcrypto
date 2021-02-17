@@ -19,6 +19,56 @@ class UserModel
         $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getSurname()
+    {
+        return $this->surname;
+    }
+
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    public function getBusiness()
+    {
+        return $this->business;
+    }
+
+    public function getTaxvat()
+    {
+        return $this->taxvat;
+    }
+
+    public function getDocumentNumber()
+    {
+        return $this->documentNumber;
+    }
+
+    public function getCorporateName()
+    {
+        return $this->corporateName;
+    }
+
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
     public function getInfo($email, $password)
     {
         $stmt = $this->connection->prepare("
@@ -53,11 +103,6 @@ class UserModel
         $this->corporateName = $selectResult["corporate_name"];
 
 
-    }
-
-    public function setEmail($email)
-    {
-        $this->email = $email;
     }
 
     public function setPassword($password)
