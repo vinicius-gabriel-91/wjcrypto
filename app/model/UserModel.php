@@ -11,7 +11,7 @@ class UserModel
     private $password;
     private $business;
     private $taxvat;
-    private $documentNumber;
+    private $docNumber;
     private $corporateName;
 
     public function __construct()
@@ -56,7 +56,7 @@ class UserModel
 
     public function getDocumentNumber()
     {
-        return $this->documentNumber;
+        return $this->docNumber;
     }
 
     public function getCorporateName()
@@ -64,10 +64,48 @@ class UserModel
         return $this->corporateName;
     }
 
+    public function setName($name)
+    {
+        $name = strtoupper($name);
+        $name = trim($name);
+        $this->name = $name;
+    }
+
     public function setEmail($email)
     {
         $this->email = $email;
     }
+
+    public function setSurname($surname)
+    {
+        $surname = strtoupper($surname);
+        $surname = trim($surname);
+        $this->surname = $surname;
+    }
+
+    public function setBusiness($business)
+    {
+        $this->business = $business;
+    }
+
+    public function setTaxvat($taxvat)
+    {
+        $this->taxvat = $taxvat;
+    }
+
+    public function setDocNumber($docNumber)
+    {
+        $this->docNumber = $docNumber;
+    }
+
+    public function setCorporateName($corporateName)
+    {
+        $corporateName = strtoupper($corporateName);
+        $corporateName = trim($corporateName);
+        $this->corporateName = $corporateName;
+    }
+
+//-----------------------------------------------------------------------
 
     public function getInfo($email, $password)
     {
@@ -110,19 +148,8 @@ class UserModel
         $this->password = $password;
     }
 
-    public function adduser($name,
-                            $surname,
-                            $email,
-                            $password,
-                            $business,
-                            $taxvat,
-                            $docNumber,
-                            $corporateName = null
-                            ): bool
+    public function adduser(): bool
     {
-        $name = $this->nameTreatment($name);
-        $surname = $this->surnameTreatment($surname);
-        $corporateName = $this->corporateNameTreatment($corporateName);
 
         $stmt = $this->connection->prepare(
                                     "INSERT INTO
@@ -148,14 +175,14 @@ class UserModel
 
 
         $stmt->execute([
-            ":first_name" => $name,
-            ":last_name" => $surname,
-            ":email" => $email,
-            ":password" => $password,
-            ":is_business_customer" => $business,
-            ":taxvat" => $taxvat,
-            ":person_document_number" => $docNumber,
-            ":corporate_name" => $corporateName,
+            ":first_name" => $this->name,
+            ":last_name" => $this->surname,
+            ":email" => $this->email,
+            ":password" => $this->password,
+            ":is_business_customer" => $this->business,
+            ":taxvat" => $this->taxvat,
+            ":person_document_number" => $this->docNumber,
+            ":corporate_name" => $this->corporateName,
         ]);
     }
 
@@ -177,29 +204,6 @@ class UserModel
 
         ]);
 
-    }
-
-    private function nameTreatment($name)
-    {
-        $name = strtoupper($name);
-        $name = trim($name);
-
-        return $name;
-    }
-
-    private function surnameTreatment($surname)
-    {
-        $surname = strtoupper($surname);
-        $surname = trim($surname);
-        return $surname;
-    }
-
-    private function corporateNameTreatment($corporateName)
-    {
-        $corporateName = strtoupper($corporateName);
-        $corporateName = trim($corporateName);
-
-        return $corporateName;
     }
 
     public function deleteUser($userId)
