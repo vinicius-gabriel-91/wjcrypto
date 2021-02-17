@@ -3,6 +3,7 @@ ini_set('display_errors', 'on');
 
 class AccountModel
 {
+    private $accountId;
     private $connection;
     private $code;
     private $balance;
@@ -12,12 +13,32 @@ class AccountModel
         $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
     }
 
+    public function getAccountId()
+    {
+        return $this->accountId;
+    }
+
+    public function setAccountId($accountId)
+    {
+        $this->accountId = $accountId;
+    }
+
+    public function getCode()
+    {
+        return $this->code;
+    }
+
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+
     public function setBalance($balance)
     {
         $this->balance = $balance;
     }
 
-    public function addAccount($balance, $userId)
+    public function addAccount($balance = 0, $userId)
     {
         $code = $this->createCode($userId);
         $stmt = $this->connection->prepare("INSERT INTO account (code, balance, user_id) VALUE (:code, :balance, :user_id)");
@@ -28,7 +49,7 @@ class AccountModel
             ]);
     }
 
-    public function getInfo($userId)
+    public function getList($userId):array
     {
         $stmt = $this->connection->prepare(
                                     "SELECT
@@ -42,14 +63,32 @@ class AccountModel
                                            ");
         $stmt->execute([":userId" => $userId]);
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getInfo($accountId)
+    {
+        $stmt = $this->connection->prepare("
+                                            SELECT
+                                                code,
+                                                balance,
+                                                user_id
+                                            FROM
+                                                account
+                                            WHERE
+                                                id = :=accountId
+                                            ");
+        $stmt->execute([
+                        ":accountId" => $accountId
+                        ]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        var_dump($select);
         $selectResult = $select["0"];
+        $this->accountId = $selectResult["id"];
         $this->code = $selectResult["code"];
         $this->balance = $selectResult["balance"];
     }
 
-    public function updateBalance($userId)
+    public function updateBalance()
     {
         $stmt = $this->connection->prepare(
                                     "UPDATE
@@ -57,21 +96,21 @@ class AccountModel
                                            SET 
                                                 balance = :balance
                                            WHERE
-                                                user_id = :userId
+                                                id = :accountId
                                           ");
-        $stmt->execute([":balance" => $this->balance, ":userId" => $userId]);
+        $stmt->execute([":balance" => $this->balance, ":accountId" => $this->accountId]);
     }
 
-    public function deleteAccount($userId)
+    public function deleteAccount()
     {
         $stmt = $this->connection->prepare("
                                             DELETE
                                             FROM
                                                 account
                                             WHERE
-                                                user_id = :userId
+                                                id = :accountId
                                            ");
-        $stmt->execute([":userId" => $userId]);
+        $stmt->execute([":userId" => $this->accountId]);
     }
 
     private function createCode($userId)
