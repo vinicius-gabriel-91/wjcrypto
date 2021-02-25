@@ -1,6 +1,5 @@
 <?php
 
-
 class AddressModel
 {
     private $connection;
@@ -15,7 +14,8 @@ class AddressModel
 
     public function __construct()
     {
-        $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
     }
 
     public function setStreet($street)

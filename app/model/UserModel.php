@@ -1,6 +1,5 @@
 <?php
 
-
 class UserModel
 {
     private $connection;
@@ -16,7 +15,8 @@ class UserModel
 
     public function __construct()
     {
-        $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
     }
 
     public function getId()
@@ -76,6 +76,11 @@ class UserModel
         $this->email = $email;
     }
 
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
     public function setSurname($surname)
     {
         $surname = strtoupper($surname);
@@ -107,7 +112,7 @@ class UserModel
 
 //-----------------------------------------------------------------------
 
-    public function getInfo($email, $password)
+    public function getInfo()
     {
         $stmt = $this->connection->prepare("
                                                     SELECT 
@@ -125,8 +130,8 @@ class UserModel
                                                     WHERE
                                                           email =  :email and password = :password");
         $stmt->execute([
-            ":email" => $email,
-            ":password" => $password
+            ":email" => $this->email,
+            ":password" => $this->password
             ]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $selectResult = $select["0"];
@@ -137,18 +142,13 @@ class UserModel
         $this->password = $selectResult["password"];
         $this->business = $selectResult["is_business_customer"];
         $this->taxvat = $selectResult["taxvat"];
-        $this->documentNumber = $selectResult["person_document_number"];
+        $this->docNumber = $selectResult["person_document_number"];
         $this->corporateName = $selectResult["corporate_name"];
 
 
     }
 
-    public function setPassword($password)
-    {
-        $this->password = $password;
-    }
-
-    public function adduser(): bool
+    public function adduser()
     {
 
         $stmt = $this->connection->prepare(

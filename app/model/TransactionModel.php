@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 'on');
+
 
 class TransactionModel
 {
@@ -10,7 +10,8 @@ class TransactionModel
 
     public function __construct()
     {
-        $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
     }
 
     public function getAccountId()

@@ -1,5 +1,4 @@
 <?php
-ini_set('display_errors', 'on');
 
 class AccountModel
 {
@@ -10,7 +9,8 @@ class AccountModel
 
     public function __construct()
     {
-        $this->connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
     }
 
     public function getAccountId()
@@ -71,19 +71,17 @@ class AccountModel
         $stmt = $this->connection->prepare("
                                             SELECT
                                                 code,
-                                                balance,
-                                                user_id
+                                                balance
                                             FROM
                                                 account
                                             WHERE
-                                                id = :=accountId
+                                                id = :accountId
                                             ");
         $stmt->execute([
                         ":accountId" => $accountId
                         ]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $selectResult = $select["0"];
-        $this->accountId = $selectResult["id"];
         $this->code = $selectResult["code"];
         $this->balance = $selectResult["balance"];
     }
@@ -118,5 +116,14 @@ class AccountModel
         $data = date("dmy");
         $code = $userId.$data;
         return $code;
+    }
+
+    public function __toString()
+    {
+        return json_encode(array(
+            $this->code,
+            $this->balance,
+            $this->accountId
+        ));
     }
 }
