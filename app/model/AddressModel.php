@@ -3,6 +3,7 @@
 class AddressModel
 {
     private $connection;
+    private $userId;
     private $addressId;
     private $street;
     private $streetNumber;
@@ -16,6 +17,76 @@ class AddressModel
     {
         $connection = new DbConnection();
         $this->connection = $connection->connection();
+    }
+
+    public function __wakeup()
+    {
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
+    }
+
+    public function __sleep()
+    {
+        return [
+            "addressId",
+            "street",
+            "streetNumber",
+            "streetNumberAdition",
+            "postalCode",
+            "city",
+            "country",
+            "phoneNumber",
+        ];
+    }
+
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    public function getAddressId()
+    {
+        return $this->addressId;
+    }
+
+    public function getStreet()
+    {
+        return $this->street;
+    }
+
+    public function getStreetNumber()
+    {
+        return $this->streetNumber;
+    }
+
+    public function getStreetNumberAdition()
+    {
+        return $this->streetNumberAdition;
+    }
+
+    public function getPostalCode()
+    {
+        return $this->postalCode;
+    }
+
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    public function getPhoneNumber()
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
     }
 
     public function setStreet($street)
@@ -65,7 +136,7 @@ class AddressModel
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function addAddress($userId)
+    public function addAddress()
     {
         $stmt = $this->connection->prepare(
                                     "INSERT INTO
@@ -93,7 +164,7 @@ class AddressModel
                                                 )                                                                               
                                             ");
         $stmt->execute([
-                        ":user_id" => $userId,
+                        ":user_id" => $this->userId,
                         ":street" => $this->street,
                         ":street_number" => $this->streetNumber,
                         ":street_number_adition" => $this->streetNumberAdition,
@@ -104,7 +175,7 @@ class AddressModel
         ]);
     }
 
-    public function getList($userId):array
+    public function getList():array
     {
         $stmt = $this->connection->prepare("
                                             SELECT
@@ -122,12 +193,12 @@ class AddressModel
                                                 user_id = :userId
                                             ");
         $stmt->execute([
-                        ":userId" => $userId,
+                        ":userId" => $this->userId,
                         ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function updateAddress()
+    public function updateAddress($userId)
     {
         $stmt = $this->connection->prepare("
                                             UPDATE
@@ -141,7 +212,7 @@ class AddressModel
                                                 country = :country,
                                                 phone_number = :phoneNumber
                                             WHERE
-                                                id = :addressId
+                                                user_id = :userId
                                             ");
         $stmt->execute([
                         ":street" => $this->street,
@@ -151,14 +222,15 @@ class AddressModel
                         ":city" => $this->city,
                         ":phoneNumber" => $this->phoneNumber,
                         ":country" => $this->country,
-                        ":addressId" => $this->addressId
+                        ":userId" => $userId
                        ]);
     }
 
-    public function getInfo($addressId)
+    public function getInfo($userId)
     {
         $stmt = $this->connection->prepare("
                                             SELECT
+                                                id,
                                                 street,
                                                 street_number,
                                                 street_number_adition,
@@ -169,10 +241,10 @@ class AddressModel
                                             FROM
                                                 address
                                             WHERE
-                                                id = :addressId;
+                                                user_id = :userId;
                                            ");
         $stmt->execute([
-                        ":addressId" => $addressId
+                        ":userId" => $userId
                         ]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $selectResult = $select["0"];
@@ -184,7 +256,6 @@ class AddressModel
         $this->city = $selectResult["city"];
         $this->country = $selectResult["country"];
         $this->phoneNumber = $selectResult["phone_number"];
-        $this->addressId = $addressId;
 
     }
 

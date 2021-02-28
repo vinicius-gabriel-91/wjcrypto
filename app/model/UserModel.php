@@ -19,6 +19,27 @@ class UserModel
         $this->connection = $connection->connection();
     }
 
+    public function __sleep():array
+    {
+        return [
+            "id",
+            "name",
+            "surname",
+            "email",
+            "password",
+            "business",
+            "taxvat",
+            "docNumber",
+            "corporateName"
+        ];
+    }
+
+    public function __wakeup()
+    {
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
+    }
+
     public function getId()
     {
         return $this->id;
@@ -110,6 +131,13 @@ class UserModel
         $this->corporateName = $corporateName;
     }
 
+    public function setId($id)
+    {
+        $this->id = $id;
+    }
+
+
+
 //-----------------------------------------------------------------------
 
     public function getInfo()
@@ -144,8 +172,6 @@ class UserModel
         $this->taxvat = $selectResult["taxvat"];
         $this->docNumber = $selectResult["person_document_number"];
         $this->corporateName = $selectResult["corporate_name"];
-
-
     }
 
     public function adduser()

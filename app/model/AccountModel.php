@@ -2,7 +2,6 @@
 
 class AccountModel
 {
-    private $accountId;
     private $connection;
     private $code;
     private $balance;
@@ -13,19 +12,33 @@ class AccountModel
         $this->connection = $connection->connection();
     }
 
-    public function getAccountId()
+    public function __toString()
     {
-        return $this->accountId;
+        return json_encode(array(
+            $this->code,
+            $this->balance,
+        ));
     }
 
-    public function setAccountId($accountId)
+    public function __sleep()
     {
-        $this->accountId = $accountId;
+        return ["code", "balance"];
+    }
+
+    public function __wakeup()
+    {
+        $connection = new DbConnection();
+        $this->connection = $connection->connection();
     }
 
     public function getCode()
     {
         return $this->code;
+    }
+
+    public function getBalance()
+    {
+        return $this->balance;
     }
 
     public function setCode($code)
@@ -66,7 +79,7 @@ class AccountModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getInfo($accountId)
+    public function getInfo($userId)
     {
         $stmt = $this->connection->prepare("
                                             SELECT
@@ -75,10 +88,10 @@ class AccountModel
                                             FROM
                                                 account
                                             WHERE
-                                                id = :accountId
+                                                user_id = :userId
                                             ");
         $stmt->execute([
-                        ":accountId" => $accountId
+                        ":userId" => $userId
                         ]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $selectResult = $select["0"];
@@ -116,14 +129,5 @@ class AccountModel
         $data = date("dmy");
         $code = $userId.$data;
         return $code;
-    }
-
-    public function __toString()
-    {
-        return json_encode(array(
-            $this->code,
-            $this->balance,
-            $this->accountId
-        ));
     }
 }
