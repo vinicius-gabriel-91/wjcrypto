@@ -73,8 +73,6 @@
     
 ## TransactionController
 
-* getAccountList
-* saveAccount
 * getTransactionList
 * deposit
 * withdraw

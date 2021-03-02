@@ -88,17 +88,19 @@ class TransactionModel
     public function getList() :array
     {
         $stmt = $this->connection->prepare("
-                                            SELECT 
-                                                id,
-                                                transaction_type_id,
-                                                target_account_id,
-                                                date_time,
-                                                value
-                                            FROM
-                                                account_transaction
-                                            WHERE
-                                                origin_account_id = :accountId
-                                            ");
+            SELECT
+            date_time,
+            value,
+            code,
+            description
+            FROM account_transaction at
+            inner join transaction_type tt
+            on at.transaction_type_id = tt.id
+            inner join account ac
+            on at.target_account_id = ac.id
+            where
+            origin_account_id = :accountId;
+            ");
         $stmt->execute([
                         ":accountId" => $this->accountId
         ]);

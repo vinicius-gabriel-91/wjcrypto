@@ -13,6 +13,10 @@ class AccountController
             $this->profile();
         } elseif ($_POST["action"] == "updateAddress"){
             $this->updateAddress();
+        } elseif ($_POST["action"] == "logout"){
+            $this->logout();
+        } elseif ($_POST["action"] == "backToHome"){
+            $this->backToHome();
         }
     }
 
@@ -127,6 +131,31 @@ class AccountController
 
     }
 
+    public function logout()
+    {
+        session_destroy();
+    }
 
+    public function backToHome()
+    {
+        $user = unserialize($_SESSION["logedUser"]);
+        $account = unserialize($_SESSION["account"]);
+        $return = [
+            "name" => $user->getName(),
+            "account" => $account->getCode(),
+            "balance" => $account->getBalance()
+        ];
+        echo json_encode($return);
+    }
+
+    public function changePassword()
+    {
+
+    }
+
+    public function changeEmail()
+    {
+
+    }
 }
 

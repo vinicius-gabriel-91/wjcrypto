@@ -5,6 +5,7 @@ class AccountModel
     private $connection;
     private $code;
     private $balance;
+    private $accountId;
 
     public function __construct()
     {
@@ -22,7 +23,7 @@ class AccountModel
 
     public function __sleep()
     {
-        return ["code", "balance"];
+        return ["accountId","code", "balance"];
     }
 
     public function __wakeup()
@@ -34,6 +35,11 @@ class AccountModel
     public function getCode()
     {
         return $this->code;
+    }
+
+    public function getAccountId()
+    {
+        return $this->accountId;
     }
 
     public function getBalance()
@@ -84,7 +90,8 @@ class AccountModel
         $stmt = $this->connection->prepare("
                                             SELECT
                                                 code,
-                                                balance
+                                                balance,
+                                                id
                                             FROM
                                                 account
                                             WHERE
@@ -97,6 +104,28 @@ class AccountModel
         $selectResult = $select["0"];
         $this->code = $selectResult["code"];
         $this->balance = $selectResult["balance"];
+        $this->accountId = $selectResult["id"];
+    }
+
+    public function getInfoByCode($accountCode)
+    {
+        $stmt = $this->connection->prepare("
+                                            SELECT                                              
+                                                balance,
+                                                id
+                                            FROM
+                                                account
+                                            WHERE
+                                                code = :accountCode
+                                            ");
+        $stmt->execute([
+                        ":accountCode" => $accountCode
+                        ]);
+        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $selectResult = $select["0"];
+        $this->balance = $selectResult["balance"];
+        $this->setCode($accountCode);
+        $this->accountId = $selectResult["id"];
     }
 
     public function updateBalance()
@@ -107,9 +136,9 @@ class AccountModel
                                            SET 
                                                 balance = :balance
                                            WHERE
-                                                id = :accountId
+                                                code = :code
                                           ");
-        $stmt->execute([":balance" => $this->balance, ":accountId" => $this->accountId]);
+        $stmt->execute([":balance" => $this->balance, ":code" => $this->code]);
     }
 
     public function deleteAccount()
