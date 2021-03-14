@@ -1,29 +1,43 @@
 <?php
 
+namespace Wjcrypto\Controller;
+
+use WjCrypto\Library\DbConnection;
+use WjCrypto\Model\AccountModel;
+use WjCrypto\Model\LogModel;
+use WjCrypto\Model\TransactionModel;
 
 class TransactionController
 {
-    public function __construct()
+    private $logActivity;
+    private $connection;
+    private $params;
+
+    public function __construct(LogModel $logModel, DbConnection $connection)
     {
-        if ($_POST["action"] == "deposit") {
-            $this->deposit($_POST["amount"]);
-        } elseif ($_POST["action"] == "withdraw") {
-            $this->withdraw($_POST["amount"]);
-        } elseif ($_POST["action"] == "transfer") {
-            $this->transfer($_POST["amount"], $_POST["targetAcountId"]);
-        } elseif ($_POST["action"] == "getTransactionList"){
+
+        $this->logActivity = $logModel;
+        $this->connection = $connection;
+        $this->params = json_decode($_POST['params'], true);
+
+        if ($this->params["action"] == "Deposito") {
+            $this->deposit($this->params["amount"]);
+        } elseif ($this->params["action"] == "Saque") {
+            $this->withdraw($this->params["amount"]);
+        } elseif ($this->params["action"] == "Transferencia") {
+            $this->transfer($this->params["amount"], $this->params["targetAcountId"]);
+        } elseif ($this->params["action"] == "getTransactionList"){
             $this->getTransactionList();
         }
     }
 
     public function deposit($amount)
     {
+        $amount = floatval($amount);
         if($amount < 0){
             echo("O valor de depósito deve ser positivo");
             return;
         }
-
-        $amount = floatval($amount);
         $user = unserialize($_SESSION["logedUser"]);
         $account = unserialize($_SESSION["account"]);
         $account->getInfo($user->getId());
@@ -33,11 +47,12 @@ class TransactionController
         $account->updateBalance();
 
         $_SESSION["account"] = serialize($account);
-        if($_POST["action"] == "deposit") {
+        if($this->params["action"] == 'Deposito') {
             $this->logTransaction($amount);
         }
         $return = ["balance" => $account->getBalance()];
         echo json_encode($return);
+        $this->logActivity->logActivity($user->getId());
         return true;
     }
 
@@ -58,12 +73,13 @@ class TransactionController
         $account->setBalance($balance);
         $account->updateBalance();
 
-        if($_POST["action"] == "withdraw") {
+        if($this->params["action"] == "Saque") {
             $this->logTransaction($amount);
         }
         $_SESSION["account"] = serialize($account);
         $return = ["balance" => $account->getBalance()];
         echo json_encode($return);
+        $this->logActivity->logActivity($user->getId());
         return true;
     }
 
@@ -74,8 +90,8 @@ class TransactionController
             echo "Conta invalida";
             return;
         }
-        if ($this->withdraw($_POST["amount"])) {
-            $targetAcount = new AccountModel();
+        if ($this->withdraw($this->params["amount"])) {
+            $targetAcount = new AccountModel($this->connection);
             $targetAcount->getInfoByCode($targetAcountCode);
             $balance = $targetAcount->getBalance();
             $balance += $amount;
@@ -88,22 +104,21 @@ class TransactionController
     public function getTransactionList()
     {
         $account = unserialize($_SESSION["account"]);
-        $request = new TransactionModel();
+        $request = new TransactionModel($this->connection);
         $request->setAccountId($account->getAccountId());
         $return = $request->getList();
-        var_dump($return);
+        echo json_encode($return);
     }
 
     private function logTransaction($amount, $targetAccountId = null)
     {
         $account = unserialize($_SESSION["account"]);
-        $log = new TransactionModel();
-        $log->getTypeId($_POST["action"]);
+        $log = new TransactionModel($this->connection);
+        $log->getTypeId($this->params["action"]);
         $log->setAccountId($account->getAccountId());
         $log->setValue($amount);
         $log->setTargetId($targetAccountId);
         $log->addTransaction();
     }
-
 
 }

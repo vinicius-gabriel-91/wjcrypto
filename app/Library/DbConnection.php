@@ -1,5 +1,8 @@
 <?php
 
+namespace WjCrypto\Library;
+
+use PDO;
 
 class DbConnection
 {

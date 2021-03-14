@@ -1,5 +1,10 @@
 <?php
 
+namespace WjCrypto\Model;
+
+use PDO;
+use WjCrypto\Library\DbConnection;
+
 class AccountModel
 {
     private $connection;
@@ -7,9 +12,8 @@ class AccountModel
     private $balance;
     private $accountId;
 
-    public function __construct()
+    public function __construct(DbConnection $connection)
     {
-        $connection = new DbConnection();
         $this->connection = $connection->connection();
     }
 

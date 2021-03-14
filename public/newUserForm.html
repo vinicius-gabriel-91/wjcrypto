@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <title>Webjump | Novo Usuario | Wjcrypto</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/site.css" />
+  </head>
+
+  <body>
+      <form action="index.php" method="post">
+        <div class="imgcontainer">
+          <img src="webjump-entreprise.png" alt="Avatar" class="avatar">
+        </div>
+        <div class="container">
+          <label for="fname"><b>Primeiro nome:</b></label>
+          <input type="text" id="fname" name="name" required>
+          <label for="lname"><b>Sobrenome:</b></label>
+          <input type="text" id="lname" name="surname" required>
+          <label for="email"><b>Email:</b></label></br>
+          <input type="email" id="email" name="email" required></br>
+          <label for="psw"><b>Password</b></label>
+          <input type="password" id="psw" placeholder="Enter Password" name="password" required>
+
+          <fieldset>
+            <legend>Tipo de usuario</legend>
+            <label for="notcorporate"><b>Pessoa fisica</b></label>
+            <input type="radio" id="notcorporate" name="isBusiness" value="0">
+            <label for="corporate"><b>Pessoa juridica</b></label>
+            <input type="radio" id="corporate" name="isBusiness" value="1">
+          </fieldset></br>
+
+          <label for="taxvat"><b>CPF/CNPJ:</b></label>
+          <input type="number" id="taxvat" name="taxvat" required>
+          <label for="personDocument"><b>RG/Inscrição estadual:</b></label>
+          <input type="number" id="personDocument" name="docNumber" required></br></br>
+          <label for="corporateName"><b>Razão social:</b></label>
+          <input type="text" id="corporateName" name="corporateName" placeholder="Apenas para pessoa juridica">
+
+          <fieldset>
+            <legend><b>Endereço:</b></legend>
+            <label for="street"><b>Rua:</b></label>
+            <input type="text" id="street" name="street">
+            <label for="number"><b>numero:</b></label>
+            <input type="number" id="number" name="streetNumber">
+            <label for="numberAdition"><b>Complemento:</b></label>
+            <input type="number" id="numberAdition" name="streetNumberAdition">
+            <label for="postalCode"><b>Codigo postal:</b></label>
+            <input type="number" id="postalCode" name="postalCode"></br></br>
+            <label for="city"><b>Cidade:</b></label>
+            <input type="text" id="city" name="city">
+            <label for="country"><b>País:</b></label>
+            <input type="text" id="country" name="country">
+            <label for="phoneNumber"><b>Telefone:</b></label>
+            <input type="number" id="phoneNumber" name="phoneNumber">
+          </fieldset>
+
+        </div>
+
+      </form>
+        <a href="newUserForm.html">
+          <button type="submit">Novo usuario</button>
+        </a>
+  </body>
+<script>
+  var session = sessionStorage.getItem('retorno');
+  console.log(session);
+</script>
+</html>

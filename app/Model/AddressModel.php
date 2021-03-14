@@ -1,5 +1,10 @@
 <?php
 
+namespace WjCrypto\Model;
+
+use PDO;
+use WjCrypto\Library\DbConnection;
+
 class AddressModel
 {
     private $connection;
@@ -13,9 +18,8 @@ class AddressModel
     private $country;
     private $phoneNumber;
 
-    public function __construct()
+    public function __construct(DbConnection $connection)
     {
-        $connection = new DbConnection();
         $this->connection = $connection->connection();
     }
 

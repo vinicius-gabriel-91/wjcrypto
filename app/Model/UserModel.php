@@ -1,5 +1,10 @@
 <?php
 
+namespace WjCrypto\Model;
+
+use PDO;
+use WjCrypto\Library\DbConnection;
+
 class UserModel
 {
     private $connection;
@@ -13,9 +18,8 @@ class UserModel
     private $docNumber;
     private $corporateName;
 
-    public function __construct()
+    public function __construct(DbConnection $connection)
     {
-        $connection = new DbConnection();
         $this->connection = $connection->connection();
     }
 
@@ -60,9 +64,21 @@ class UserModel
         return $this->email;
     }
 
-    public function getPassword()
+    public function getPassword($email)
     {
-        return $this->password;
+        $stmt = $this->connection->prepare("
+            SELECT
+                password
+            FROM
+                user
+            WHERE
+                email = :email
+        ");
+        $stmt->execute([":email" => $email]);
+        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $password = $select["0"];
+        return $password["password"];
+
     }
 
     public function getBusiness()
@@ -111,6 +127,7 @@ class UserModel
 
     public function setBusiness($business)
     {
+        $business = intval($business);
         $this->business = $business;
     }
 
@@ -148,7 +165,6 @@ class UserModel
                                                         first_name,
                                                         last_name,
                                                         email, 
-                                                        password,
                                                         is_business_customer,
                                                         taxvat,
                                                         person_document_number,
@@ -156,10 +172,10 @@ class UserModel
                                                     FROM 
                                                         user 
                                                     WHERE
-                                                          email =  :email and password = :password");
+                                                          email =  :email
+                                               ");
         $stmt->execute([
             ":email" => $this->email,
-            ":password" => $this->password
             ]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $selectResult = $select["0"];
@@ -167,7 +183,6 @@ class UserModel
         $this->name = $selectResult["first_name"];
         $this->surname = $selectResult["last_name"];
         $this->email = $selectResult["email"];
-        $this->password = $selectResult["password"];
         $this->business = $selectResult["is_business_customer"];
         $this->taxvat = $selectResult["taxvat"];
         $this->docNumber = $selectResult["person_document_number"];

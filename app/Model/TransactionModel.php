@@ -1,5 +1,9 @@
 <?php
 
+namespace WjCrypto\Model;
+
+use PDO;
+use WjCrypto\Library\DbConnection;
 
 class TransactionModel
 {
@@ -8,9 +12,8 @@ class TransactionModel
     private $targetId = null;
     private $value;
 
-    public function __construct()
+    public function __construct(DbConnection $connection)
     {
-        $connection = new DbConnection();
         $this->connection = $connection->connection();
     }
 
@@ -89,22 +92,27 @@ class TransactionModel
     {
         $stmt = $this->connection->prepare("
             SELECT
-            date_time,
-            value,
-            code,
-            description
-            FROM account_transaction at
-            inner join transaction_type tt
-            on at.transaction_type_id = tt.id
-            inner join account ac
-            on at.target_account_id = ac.id
-            where
-            origin_account_id = :accountId;
+                date_time,
+                value,
+                code,
+                description
+            FROM 
+                 account_transaction at
+            LEFT JOIN 
+                transaction_type tt
+            ON 
+                at.transaction_type_id = tt.id
+            LEFT JOIN 
+                account ac
+            ON 
+                at.target_account_id = ac.id
+            WHERE
+                origin_account_id = :accountId      
             ");
-        $stmt->execute([
-                        ":accountId" => $this->accountId
-        ]);
+
+        $stmt->execute([":accountId" => $this->accountId]);
         $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $select;
     }
 }
+
