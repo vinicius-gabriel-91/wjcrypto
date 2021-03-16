@@ -1,7 +1,8 @@
 <?php
 
-namespace Wjcrypto\Controller;
+namespace WjCrypto\Controller;
 
+use Psr\Http\Message\ServerRequestInterface;
 use WjCrypto\Library\DbConnection;
 use WjCrypto\Model\AccountModel;
 use WjCrypto\Model\LogModel;
@@ -9,116 +10,177 @@ use WjCrypto\Model\TransactionModel;
 
 class TransactionController
 {
-    private $logActivity;
-    private $connection;
-    private $params;
 
-    public function __construct(LogModel $logModel, DbConnection $connection)
+    public function deposit(ServerRequestInterface $request): array
     {
-
-        $this->logActivity = $logModel;
-        $this->connection = $connection;
-        $this->params = json_decode($_POST['params'], true);
-
-        if ($this->params["action"] == "Deposito") {
-            $this->deposit($this->params["amount"]);
-        } elseif ($this->params["action"] == "Saque") {
-            $this->withdraw($this->params["amount"]);
-        } elseif ($this->params["action"] == "Transferencia") {
-            $this->transfer($this->params["amount"], $this->params["targetAcountId"]);
-        } elseif ($this->params["action"] == "getTransactionList"){
-            $this->getTransactionList();
-        }
-    }
-
-    public function deposit($amount)
-    {
-        $amount = floatval($amount);
-        if($amount < 0){
-            echo("O valor de depósito deve ser positivo");
-            return;
+        if (!UserController::VerifyIfUserIsLogged()){
+            return[
+                'error' => true,
+                'message' => 'Não existe um usuario logado'
+            ];
         }
         $user = unserialize($_SESSION["logedUser"]);
-        $account = unserialize($_SESSION["account"]);
+
+        $params = $request->getParsedBody();
+        $amount = floatval($params['amount']);
+
+        if($amount < 0){
+            return [
+                "error" => true,
+                "message" => "O valor de depósito deve ser positivo",];
+        }
+
+        $account = new AccountModel();
         $account->getInfo($user->getId());
         $balance = $account->getBalance();
         $balance += $amount;
         $account->setBalance($balance);
-        $account->updateBalance();
 
-        $_SESSION["account"] = serialize($account);
-        if($this->params["action"] == 'Deposito') {
-            $this->logTransaction($amount);
+        if (!$account->updateBalance()){
+            return [
+                'error' => true,
+                'message' => "Falha ao realizar a transação",
+            ];
         }
-        $return = ["balance" => $account->getBalance()];
-        echo json_encode($return);
-        $this->logActivity->logActivity($user->getId());
-        return true;
+
+        $this->logTransaction($account, $params);
+
+        return [
+            "error" => false,
+        ];
     }
 
-    public function withdraw($amount)
+    public function withdraw(ServerRequestInterface $request)
     {
-        $amount = floatval($amount);
+        if (!UserController::VerifyIfUserIsLogged()){
+            return[
+                'error' => true,
+                'message' => 'Não existe um usuario logado'
+            ];
+        }
         $user = unserialize($_SESSION["logedUser"]);
-        $account = unserialize($_SESSION["account"]);
+
+        $params = $request->getParsedBody();
+        $amount = floatval($params['amount']);
+
+        $account = new AccountModel();
         $account->getInfo($user->getId());
         $balance = $account->getBalance();
 
         if ($amount < 0 || $amount  > $balance){
-            echo("Valor indisponivel");
-            return;
+            return [
+                "error" => true,
+                "message" => "Valor indisponivel para saque",];
         }
-
         $balance -= $amount;
         $account->setBalance($balance);
-        $account->updateBalance();
 
-        if($this->params["action"] == "Saque") {
-            $this->logTransaction($amount);
-        }
-        $_SESSION["account"] = serialize($account);
-        $return = ["balance" => $account->getBalance()];
-        echo json_encode($return);
-        $this->logActivity->logActivity($user->getId());
-        return true;
+        if (!$account->updateBalance()){
+            return [
+                'error' => true,
+                'message' => "Falha ao realizar a transação"
+            ];
+        };
+
+        $this->logTransaction($account, $params);
+
+        return [
+            "error" => false
+        ];
     }
 
-    public function transfer($amount, $targetAcountCode)
+    public function transfer(ServerRequestInterface $request)
     {
-        $account = unserialize($_SESSION["account"]);
-        if ($targetAcountCode == $account->getCode()){
-            echo "Conta invalida";
-            return;
+        if (!UserController::VerifyIfUserIsLogged()){
+            return[
+                'error' => true,
+                'message' => 'Não existe um usuario logado'
+            ];
         }
-        if ($this->withdraw($this->params["amount"])) {
-            $targetAcount = new AccountModel($this->connection);
-            $targetAcount->getInfoByCode($targetAcountCode);
-            $balance = $targetAcount->getBalance();
-            $balance += $amount;
-            $targetAcount->setBalance($balance);
-            $targetAcount->updateBalance();
-            $this->logTransaction($amount, $targetAcount->getAccountId());
+        $user = unserialize($_SESSION["logedUser"]);
+
+        $params = $request->getParsedBody();
+        $amount = floatval($params['amount']);
+
+        $originAccount = new AccountModel();
+        $originAccount->getInfo($user->getId());
+
+        if ($params['targetAcountId'] == $originAccount->getCode()){
+            return [
+                "error" => true,
+                "message" => "A conta de destino não pode ser igual a de origem"
+                ];
         }
+
+        $balance = $originAccount->getBalance();
+        if ($amount < 0 || $amount  > $balance){
+            return [
+                "error" => true,
+                "message" => "Valor indisponivel para transferencia",];
+        }
+        $balance -= $amount;
+        $originAccount->setBalance($balance);
+
+        if (!$originAccount->updateBalance()){
+            return [
+                'error' => true,
+                'message' => "Falha ao realizar a transação"
+            ];
+        };
+
+        $targetAcount = new AccountModel();
+
+        if (!$targetAcount->getInfoByCode($params['targetAcountId'])){
+            return [
+                "error" => true,
+                "message" => "Conta de destino invalida"
+            ];
+        }
+
+        $targetAcountBalance = $targetAcount->getBalance();
+        $targetAcountBalance += $amount;
+        $targetAcount->setBalance($targetAcountBalance);
+
+        if (!$targetAcount->updateBalance()){
+            return [
+                'error' => true,
+                'message' => "Falha ao realizar a transação"
+            ];
+        }
+
+        $this->logTransaction($originAccount, $params, $targetAcount->getAccountId());
+
+        return [
+            "error" => false,
+        ];
+
     }
 
     public function getTransactionList()
     {
-        $account = unserialize($_SESSION["account"]);
-        $request = new TransactionModel($this->connection);
+        $user = unserialize($_SESSION['logedUser']);
+        $account = new AccountModel();
+        $account->getInfo($user->getId());
+        $request = new TransactionModel();
         $request->setAccountId($account->getAccountId());
         $return = $request->getList();
-        echo json_encode($return);
+        return [
+            'error' => false,
+            'transactions' => $return,
+        ];
     }
 
-    private function logTransaction($amount, $targetAccountId = null)
+    private function logTransaction($account, $params, $targetAccount = null)
     {
-        $account = unserialize($_SESSION["account"]);
-        $log = new TransactionModel($this->connection);
-        $log->getTypeId($this->params["action"]);
+
+        $log = new TransactionModel();
+        $log->setTypeId(intval($params['transactionId']));
         $log->setAccountId($account->getAccountId());
-        $log->setValue($amount);
-        $log->setTargetId($targetAccountId);
-        $log->addTransaction();
+        $log->setValue($params['amount']);
+        $log->setTargetId($targetAccount);
+        if(!$log->addTransaction()){
+            return false;
+        }
     }
 
 }

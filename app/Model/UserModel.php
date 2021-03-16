@@ -18,9 +18,9 @@ class UserModel
     private $docNumber;
     private $corporateName;
 
-    public function __construct(DbConnection $connection)
+    public function __construct()
     {
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function __sleep():array
@@ -40,8 +40,7 @@ class UserModel
 
     public function __wakeup()
     {
-        $connection = new DbConnection();
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function getId()
@@ -64,21 +63,8 @@ class UserModel
         return $this->email;
     }
 
-    public function getPassword($email)
-    {
-        $stmt = $this->connection->prepare("
-            SELECT
-                password
-            FROM
-                user
-            WHERE
-                email = :email
-        ");
-        $stmt->execute([":email" => $email]);
-        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $password = $select["0"];
-        return $password["password"];
-
+    public function getPassword(): string   {
+        return $this->password;
     }
 
     public function getBusiness()
@@ -153,11 +139,23 @@ class UserModel
         $this->id = $id;
     }
 
-
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'surname' => $this->surname,
+            'email' => $this->email,
+            'business' => $this->business,
+            'taxvat' => $this->taxvat,
+            'docNumber' => $this->docNumber,
+            'corporateName' => $this->corporateName,
+        ];
+    }
 
 //-----------------------------------------------------------------------
 
-    public function getInfo()
+    public function fetchInfo(string $email): bool
     {
         $stmt = $this->connection->prepare("
                                                     SELECT 
@@ -168,32 +166,44 @@ class UserModel
                                                         is_business_customer,
                                                         taxvat,
                                                         person_document_number,
+                                                        password,
                                                         corporate_name 
                                                     FROM 
                                                         user 
                                                     WHERE
                                                           email =  :email
                                                ");
+
         $stmt->execute([
-            ":email" => $this->email,
-            ]);
-        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $selectResult = $select["0"];
-        $this->id = $selectResult["id"];
-        $this->name = $selectResult["first_name"];
-        $this->surname = $selectResult["last_name"];
-        $this->email = $selectResult["email"];
-        $this->business = $selectResult["is_business_customer"];
-        $this->taxvat = $selectResult["taxvat"];
-        $this->docNumber = $selectResult["person_document_number"];
-        $this->corporateName = $selectResult["corporate_name"];
+            ":email" => $email,
+        ]);
+
+        $queryResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($queryResults) != 1) {
+            return false;
+        }
+
+        $info = reset($queryResults);
+
+        $this->id = $info["id"];
+        $this->name = $info["first_name"];
+        $this->surname = $info["last_name"];
+        $this->email = $info["email"];
+        $this->password = $info["password"];
+        $this->business = $info["is_business_customer"];
+        $this->taxvat = $info["taxvat"];
+        $this->docNumber = $info["person_document_number"];
+        $this->corporateName = $info["corporate_name"];
+
+        return true;
     }
 
-    public function adduser()
+    public function adduser(): bool
     {
 
         $stmt = $this->connection->prepare(
-                                    "INSERT INTO
+            "INSERT INTO
                                                  user
                                                  (first_name,
                                                   last_name,
@@ -212,8 +222,7 @@ class UserModel
                                                    :taxvat,
                                                    :person_document_number,
                                                    :corporate_name)"
-                                        );
-
+        );
 
         $stmt->execute([
             ":first_name" => $this->name,
@@ -225,6 +234,11 @@ class UserModel
             ":person_document_number" => $this->docNumber,
             ":corporate_name" => $this->corporateName,
         ]);
+
+        if (!$this->fetchInfo($this->email)) {
+            return false;
+        }
+        return true;
     }
 
     public function updateUser()
@@ -259,6 +273,6 @@ class UserModel
         $stmt->execute([":userId" => $userId]);
     }
 }
-?>
+
 
 

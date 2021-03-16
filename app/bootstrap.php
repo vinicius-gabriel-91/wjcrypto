@@ -1,26 +1,25 @@
 <?php
-//    use Monolog\Logger;
-//    use Monolog\Handler\StreamHandler;
+
+session_start();
+ini_set('display_errors', 'on');
+
+define("KEY_SESSION_LOGGED_USER", "logedUser");
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Laminas\Diactoros\ServerRequestFactory;
+use WjCrypto\Library\RouterFactory;
 
 try {
+    $request = ServerRequestFactory::fromGlobals(
+        $_SERVER, $_GET, $_POST, $_COOKIE, $_FILES
+    );
 
-    ini_set('display_errors', 'On');
-    session_start();
+    $response = RouterFactory::create()->dispatch($request);
 
-
-    include_once __DIR__ . '/../vendor/autoload.php';
-
-} catch (Exception $ex){
-
-    echo json_encode(array(
-        "message"=>$ex->getMessage(),
-        "code"=>$ex->getCode()
-    ));
+    // send the response to the browser
+    (new Laminas\HttpHandlerRunner\Emitter\SapiEmitter)->emit($response);
+} catch (Exception $exception) {
+    echo "<pre>";
+    print_r($exception);
 }
-
-//    $log = new Logger('wjcrypto');
-//    $log->pushHandler(new StreamHandler(__DIR__ . '/etc/wjcrypto.log', Logger::WARNING));
-
-// add records to the log
-//$log->warning('Foo');
-//$log->error('Bar');

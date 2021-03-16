@@ -18,15 +18,14 @@ class AddressModel
     private $country;
     private $phoneNumber;
 
-    public function __construct(DbConnection $connection)
+    public function __construct()
     {
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function __wakeup()
     {
-        $connection = new DbConnection();
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function __sleep()
@@ -140,7 +139,7 @@ class AddressModel
         $this->phoneNumber = $phoneNumber;
     }
 
-    public function addAddress()
+    public function addAddress(): bool
     {
         $stmt = $this->connection->prepare(
                                     "INSERT INTO
@@ -167,7 +166,8 @@ class AddressModel
                                                 :phone_number
                                                 )                                                                               
                                             ");
-        $stmt->execute([
+
+        if (!$stmt->execute([
                         ":user_id" => $this->userId,
                         ":street" => $this->street,
                         ":street_number" => $this->streetNumber,
@@ -176,7 +176,27 @@ class AddressModel
                         ":city" => $this->city,
                         ":country" => $this->country,
                         ":phone_number"  => $this->phoneNumber
-        ]);
+        ])){
+            return false;
+        }
+
+        return true;
+
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'userId' => $this->userId,
+            'addressId' => $this->addressId,
+            'street' => $this->street,
+            'streetNumber' => $this->streetNumber,
+            'streetNumberAdition' => $this->streetNumberAdition,
+            'postalCode' => $this->postalCode,
+            'city' => $this->city,
+            'country' => $this->country,
+            'phoneNumber' => $this->phoneNumber,
+        ];
     }
 
     public function getList():array
@@ -202,7 +222,7 @@ class AddressModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function updateAddress($userId)
+    public function updateAddress($userId): bool
     {
         $stmt = $this->connection->prepare("
                                             UPDATE
@@ -218,7 +238,7 @@ class AddressModel
                                             WHERE
                                                 user_id = :userId
                                             ");
-        $stmt->execute([
+        if (!$stmt->execute([
                         ":street" => $this->street,
                         ":streetNumber" => $this->streetNumber,
                         ":streetNumberAdition" => $this->streetNumberAdition,
@@ -227,10 +247,13 @@ class AddressModel
                         ":phoneNumber" => $this->phoneNumber,
                         ":country" => $this->country,
                         ":userId" => $userId
-                       ]);
+                       ])){
+            return false;
+        }
+        return true;
     }
 
-    public function getInfo($userId)
+    public function getInfo($userId):bool
     {
         $stmt = $this->connection->prepare("
                                             SELECT
@@ -247,20 +270,29 @@ class AddressModel
                                             WHERE
                                                 user_id = :userId;
                                            ");
+
         $stmt->execute([
                         ":userId" => $userId
                         ]);
-        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $selectResult = $select["0"];
-        $this->addressId = $selectResult["id"];
-        $this->street = $selectResult["street"];
-        $this->streetNumber = $selectResult["street_number"];
-        $this->streetNumberAdition = $selectResult["street_number_adition"];
-        $this->postalCode = $selectResult["postal_code"];
-        $this->city = $selectResult["city"];
-        $this->country = $selectResult["country"];
-        $this->phoneNumber = $selectResult["phone_number"];
 
+        $queryResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($queryResults) != 1) {
+            return false;
+        }
+
+        $info = reset($queryResults);
+
+        $this->addressId = $info["id"];
+        $this->street = $info["street"];
+        $this->streetNumber = $info["street_number"];
+        $this->streetNumberAdition = $info["street_number_adition"];
+        $this->postalCode = $info["postal_code"];
+        $this->city = $info["city"];
+        $this->country = $info["country"];
+        $this->phoneNumber = $info["phone_number"];
+
+        return true;
     }
 
     public function deleteAddress()

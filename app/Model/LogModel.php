@@ -13,11 +13,9 @@ class LogModel
     private $message;
     private $params;
 
-    public function __construct(DbConnection $connection)
+    public function __construct()
     {
-        $this->params = json_decode($_POST['params'], true);
-
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
         $this->setMessage();
         $this->setSessionId();
         $this->setDevice();
@@ -47,8 +45,8 @@ class LogModel
     {
         $message = "";
 
-        if ($this->params["action"] == "login"){
-            $message = "login realizado";
+        if ($this->params["action"] == "user"){
+            $message = "user realizado";
         } elseif ($this->params["action"] == "profile"){
             $message = "Acesso ao profile";
         } elseif ($this->params["action"] == "updateAddress"){

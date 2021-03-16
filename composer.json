@@ -10,9 +10,13 @@
     }
   ],
   "require": {
+    "php": "7.2.*",
     "ext-json": "*",
     "ext-pdo": "*",
-    "ext-xdebug": "*"
+    "ext-xdebug": "*",
+    "league/route": "5.x-dev",
+    "laminas/laminas-diactoros": "2.6.x-dev",
+    "laminas/laminas-httphandlerrunner": "1.4.x-dev"
   },
       "autoload": {
         "psr-4": {

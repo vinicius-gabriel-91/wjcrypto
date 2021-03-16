@@ -6,9 +6,18 @@ use PDO;
 
 class DbConnection
 {
-    public function connection()
+    private static $connection = null;
+
+    public static function getInstance()
     {
-        $connection = new PDO("mysql:host=localhost;port=3306;dbname=wjcrypto", "vinicius", "webjump");
-        return $connection;
+        if (empty(static::$connection)) {
+            static::$connection = new PDO(
+                "mysql:host=localhost;port=3306;dbname=wjcrypto",
+                "vinicius",
+                "webjump"
+            );
+        }
+
+        return static::$connection;
     }
 }

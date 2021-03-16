@@ -12,9 +12,9 @@ class AccountModel
     private $balance;
     private $accountId;
 
-    public function __construct(DbConnection $connection)
+    public function __construct()
     {
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function __toString()
@@ -25,6 +25,13 @@ class AccountModel
         ));
     }
 
+    public function toArray(){
+        return [
+            "code" => $this->code,
+            "balance" => $this->balance,
+        ];
+    }
+
     public function __sleep()
     {
         return ["accountId","code", "balance"];
@@ -32,8 +39,7 @@ class AccountModel
 
     public function __wakeup()
     {
-        $connection = new DbConnection();
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function getCode()
@@ -61,7 +67,7 @@ class AccountModel
         $this->balance = $balance;
     }
 
-    public function addAccount($balance = 0, $userId)
+    public function addAccount($balance = 0, $userId): bool
     {
         $code = $this->createCode($userId);
         $stmt = $this->connection->prepare("INSERT INTO account (code, balance, user_id) VALUE (:code, :balance, :user_id)");
@@ -70,6 +76,11 @@ class AccountModel
             ":balance" => $balance,
             ":user_id" => $userId
             ]);
+
+        if (!$this->getInfo($userId)) {
+            return false;
+        }
+        return true;
     }
 
     public function getList($userId):array
@@ -89,7 +100,7 @@ class AccountModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getInfo($userId)
+    public function getInfo($userId): bool
     {
         $stmt = $this->connection->prepare("
                                             SELECT
@@ -101,17 +112,26 @@ class AccountModel
                                             WHERE
                                                 user_id = :userId
                                             ");
+
         $stmt->execute([
                         ":userId" => $userId
                         ]);
-        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $selectResult = $select["0"];
-        $this->code = $selectResult["code"];
-        $this->balance = $selectResult["balance"];
-        $this->accountId = $selectResult["id"];
+
+        $queryResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($queryResults) != 1) {
+            return false;
+        }
+
+        $info = reset($queryResults);
+        $this->code = $info["code"];
+        $this->balance = $info["balance"];
+        $this->accountId = $info["id"];
+
+        return true;
     }
 
-    public function getInfoByCode($accountCode)
+    public function getInfoByCode($accountCode): bool
     {
         $stmt = $this->connection->prepare("
                                             SELECT                                              
@@ -125,14 +145,21 @@ class AccountModel
         $stmt->execute([
                         ":accountCode" => $accountCode
                         ]);
-        $select = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $selectResult = $select["0"];
-        $this->balance = $selectResult["balance"];
+        $queryResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($queryResults) != 1) {
+            return false;
+        }
+
+        $info = reset($queryResults);
+        $this->balance = $info["balance"];
         $this->setCode($accountCode);
-        $this->accountId = $selectResult["id"];
+        $this->accountId = $info["id"];
+
+        return true;
     }
 
-    public function updateBalance()
+    public function updateBalance(): bool
     {
         $stmt = $this->connection->prepare(
                                     "UPDATE
@@ -142,10 +169,16 @@ class AccountModel
                                            WHERE
                                                 code = :code
                                           ");
-        $stmt->execute([":balance" => $this->balance, ":code" => $this->code]);
+        if ($stmt->execute([
+            ":balance" => $this->balance,
+            ":code" => $this->code
+        ])){
+            return true;
+        }
+        return false;
     }
 
-    public function deleteAccount()
+    public function deleteAccount(): bool
     {
         $stmt = $this->connection->prepare("
                                             DELETE
@@ -154,7 +187,12 @@ class AccountModel
                                             WHERE
                                                 id = :accountId
                                            ");
-        $stmt->execute([":userId" => $this->accountId]);
+        if ($stmt->execute([
+            ":userId" => $this->accountId
+        ])){
+            return true;
+        }
+        return false;
     }
 
     private function createCode($userId)

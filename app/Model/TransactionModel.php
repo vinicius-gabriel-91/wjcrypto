@@ -12,14 +12,19 @@ class TransactionModel
     private $targetId = null;
     private $value;
 
-    public function __construct(DbConnection $connection)
+    public function __construct()
     {
-        $this->connection = $connection->connection();
+        $this->connection = DbConnection::getInstance();
     }
 
     public function getAccountId()
     {
         return $this->accountId;
+    }
+
+    public function setTypeId($typeId)
+    {
+        $this->typeId = $typeId;
     }
 
     public function setAccountId($accountId)
@@ -48,7 +53,7 @@ class TransactionModel
     }
 //____________________________________________________________________________
 
-    public function addTransaction()
+    public function addTransaction(): bool
     {
         $stmt = $this->connection->prepare("
                                            INSERT
@@ -66,15 +71,18 @@ class TransactionModel
                                                   :value 
                                            )
                                            ");
-        $stmt->execute([
+        if (!$stmt->execute([
                         ":typeId" => $this->typeId,
                         ":accountId" => $this->accountId,
                         ":targetId" => $this->targetId,
                         ":value" => $this->value
-        ]);
+        ])){
+            return false;
+        }
+        return true;
     }
 
-    public function getTypeId($description)
+    public function getTypeId($description): bool
     {
         $stmt = $this->connection->prepare("SELECT
                                                         *
@@ -83,9 +91,14 @@ class TransactionModel
                                                     WHERE 
                                                         description = :description;");
         $stmt->execute([":description" => $description]);
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $value = $result["0"];
-        $this->typeId = $value["id"];
+        $queryResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (count($queryResults) != 1) {
+            return false;
+        }
+
+        $info = reset($queryResults);
+        $this->typeId = $info["id"];
+        return true;
     }
 
     public function getList() :array
