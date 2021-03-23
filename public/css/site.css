@@ -1,7 +1,4 @@
-/* Bordered form */
-form {
-  border: 3px solid #f1f1f1;
-}
+
 
 /* Full-width inputs */
 input[type=text], input[type=password] {
@@ -13,16 +10,72 @@ input[type=text], input[type=password] {
   box-sizing: border-box;
 }
 
+.header{
+    top: 0;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: flex-end;
+    vertical-align: center;
+}
+.profile-button {
+    /*flex: 1;*/
+    display: flex;
+    width: 70px;
+    height: 100%;
+    background-color: blue;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+}
+.header a {
+    color: white;
+    text-decoration: none;
+}
+.profile-button:hover {
+    background-color: #1d358f;
+}
+.signout-button:hover {
+    background-color: #800909;
+}
+.signout-button{
+    /*flex: 1;*/
+    display: flex;
+    width: 70px;
+    height: 100%;
+    background-color: red;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5px;
+    border-radius: 10px;
+}
+
 /* Set a style for all buttons */
 button {
-  background-color: red;
-  color: black;
-  padding: 14px 20px;
-  margin: 1px 0;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  font-weight: bolder;
+      background-color: #16911b;
+      color: #fff;
+      /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
+      padding: 15px 20px;
+      font-size: 20px;
+      text-decoration: none;
+      cursor: pointer;
+    border-radius: 10px;
+}
+
+button:hover {
+    background-color: #147318;
+}
+
+#table-transaction-list {
+    border: 1px solid black;
+    width: 100%;
+    flex: 1;
+}
+.table{
+    display: flex;
+
 }
 
 /* Add a hover effect for buttons */
@@ -70,4 +123,10 @@ span.psw {
   .cancelbtn {
     width: 100%;
   }
+}
+
+.inputfom{
+    /*display: flex;*/
+    width: 50%;
+
 }

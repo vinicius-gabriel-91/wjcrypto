@@ -24,7 +24,14 @@ class TransactionModel
 
     public function setTypeId($typeId)
     {
-        $this->typeId = $typeId;
+        if ($typeId == 'Deposito'){
+            $id = 1;
+        } elseif ($typeId == 'Saque'){
+            $id = 2;
+        } else {
+            $id = 3;
+        }
+        $this->typeId = $id;
     }
 
     public function setAccountId($accountId)
@@ -120,7 +127,9 @@ class TransactionModel
             ON 
                 at.target_account_id = ac.id
             WHERE
-                origin_account_id = :accountId      
+                origin_account_id = :accountId 
+            ORDER BY    
+                date_time
             ");
 
         $stmt->execute([":accountId" => $this->accountId]);

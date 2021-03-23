@@ -3,48 +3,27 @@
 namespace WjCrypto\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
+use WjCrypto\Library\AuthManager;
 use WjCrypto\Model\AccountModel;
 use WjCrypto\Model\AddressModel;
+use WjCrypto\Model\LogModel;
 use WjCrypto\Model\UserModel;
 
 class UserController
 {
     public function login(ServerRequestInterface $request): array
     {
-        /** @var array $params */
-        $params = $request->getParsedBody();
+        LogModel::create($request, 'Login Realizado');
 
-        $user = new UserModel();
-
-        if (!$user->fetchInfo($params['email'])) {
-            return [
-                'error' => true,
-                'message' => 'Usuário desconhecido',
-            ];
-        }
-
-        if (!password_verify($params['password'], $user->getPassword())) {
-            return [
-                'error' => true,
-                'message' => 'Senha incorreta',
-            ];
-        }
-
-        $_SESSION[KEY_SESSION_LOGGED_USER] = serialize($user);
-
-        return ['error' => false];
+        return [
+            'error' => false
+        ];
     }
 
-    public function fetchLoggedUserInfo(): array
+    public function fetchLoggedUserInfo(ServerRequestInterface $request): array
     {
-        if (!UserController::VerifyIfUserIsLogged()){
-            return[
-                'error' => true,
-                'message' => 'Não existe um usuario logado'
-            ];
-        }
+        $user = AuthManager::getLoggedUser();
 
-        $user = unserialize($_SESSION["logedUser"]);
         $address = new AddressModel();
         if (!$address->getInfo($user->getId())) {
             return [
@@ -52,6 +31,8 @@ class UserController
                 'message' => 'Houve um erro na busca dos dados',
             ];
         }
+
+        LogModel::create($request, 'Acesso ao perfil');
 
         return [
             'error' => false,
@@ -65,6 +46,14 @@ class UserController
         $params = $request->getParsedBody();
         $hash = password_hash($params["password"], PASSWORD_DEFAULT);
         $user = new UserModel();
+
+        if ($user->verifyIfUserExists($params["email"])){
+            return [
+                'error' => true,
+                'message' => 'Ja existe uma conta cadastrada com este email'
+            ];
+        }
+
         $user->setName($params["name"]);
         $user->setSurname($params["surname"]);
         $user->setEmail($params["email"]);
@@ -116,10 +105,13 @@ class UserController
         return ['error' => false];
     }
 
-    public function logout(): array
+    public function logout(ServerRequestInterface $request): array
     {
+        $user = AuthManager::getLoggedUser();
+        $log = new LogModel($request);
+        $log->logActivity($user->getId());
         session_destroy();
-        return ['error' => false];
+        return ['error' => false, 'server' => $_SERVER['HTTP_USER_AGENT']];
     }
 
     public static function VerifyIfUserIsLogged(): bool{

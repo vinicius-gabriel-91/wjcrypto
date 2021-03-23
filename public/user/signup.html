@@ -2,15 +2,17 @@
 <html lang="pt_BR" xmlns="http://www.w3.org/1999/html">
   <head>
     <title>Webjump | Novo Usuario | Wjcrypto</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/site.css" />
+    <link rel="stylesheet" href="../css/site.css" />
+    <script src="/js/signup.js"></script>
   </head>
 
   <body>
-      <form action="index.php" method="post">
+      <form action="index.php" method="post" class="inputfom">
         <div class="imgcontainer">
-          <img src="webjump-entreprise.png" alt="Avatar" class="avatar">
+          <img src="../webjump-entreprise.png" alt="Avatar" class="avatar">
         </div>
         <div class="container">
           <label for="fname"><b>Primeiro nome:</b></label>
@@ -19,13 +21,13 @@
           <input type="text" id="lname" name="surname" required>
           <label for="email"><b>Email:</b></label></br>
           <input type="email" id="email" name="email" required></br>
-          <label for="psw"><b>Password</b></label>
-          <input type="password" id="psw" placeholder="Enter Password" name="password" required>
+          <label for="password"><b>Password</b></label>
+          <input type="password" id="password" placeholder="Enter Password" name="password" required>
 
           <fieldset>
             <legend>Tipo de usuario</legend>
-            <label for="notcorporate"><b>Pessoa fisica</b></label>
-            <input type="radio" id="notcorporate" name="isBusiness" value="0">
+            <label for="corporate"><b>Pessoa fisica</b></label>
+            <input type="radio" id="corporate" name="isBusiness" value="0">
             <label for="corporate"><b>Pessoa juridica</b></label>
             <input type="radio" id="corporate" name="isBusiness" value="1">
           </fieldset></br>
@@ -58,12 +60,8 @@
         </div>
 
       </form>
-        <a href="newUserForm.html">
-          <button type="submit">Novo usuario</button>
+        <a href="signup.html">
+          <button type="submit" id="bnt-action-newuser">Novo usuario</button>
         </a>
   </body>
-<script>
-  var session = sessionStorage.getItem('retorno');
-  console.log(session);
-</script>
 </html>

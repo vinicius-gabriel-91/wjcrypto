@@ -2,94 +2,71 @@
 
 namespace WjCrypto\Model;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Psr\Http\Message\ServerRequestInterface;
+use WjCrypto\Library\AuthManager;
 use WjCrypto\Library\DbConnection;
 
 class LogModel
 {
-    private $connection;
-    private $accountId;
-    private $sessionId;
-    private $device;
-    private $message;
-    private $params;
+    public static function create(
+        ServerRequestInterface $request,
+        string $message,
+        ?int $accountId = null
+    ): void {
+        $args = [
+            ':userId' => AuthManager::getLoggedUser()->getId(),
+            ':accountId' => $accountId,
+            ':path' => $request->getRequestTarget(),
+            ':device' => $request->getServerParams()['HTTP_USER_AGENT'],
+            ':message' => $message
+        ];
 
-    public function __construct()
-    {
-        $this->connection = DbConnection::getInstance();
-        $this->setMessage();
-        $this->setSessionId();
-        $this->setDevice();
-    }
+        $stmt = DbConnection::getInstance()->prepare(
+           "INSERT INTO application_log(
+                user_id,
+                account_id,
+                path,
+                device,
+                message                                
+            ) VALUES (
+               :userId,
+               :accountId,
+               :path,
+               :device,
+               :message                   
+            );"
+        );
 
-    public function setAccountId()
-    {
-        if ($_SESSION["account"]) {
-            $account = unserialize($_SESSION["account"]);
-            $this->accountId = $account->getAccountId();
-        } else {
-            $this->accountId = null;
+        if (!$stmt->execute($args)) {
+            $log = new Logger('name');
+            $log->pushHandler(new StreamHandler(__DIR__ . '/../../var/api.log', Logger::DEBUG));
+            $log->warning('failed to log activity', $stmt->errorInfo());
+            $log->info('inserted values', $args);
         }
     }
 
-    public function setSessionId()
+    public function setMessage($request)
     {
-        $this->sessionId = session_id();
-    }
 
-    public function setDevice()
-    {
-        $this->device = $_SERVER["HTTP_USER_AGENT"];
-    }
-
-    public function setMessage()
-    {
         $message = "";
 
-        if ($this->params["action"] == "user"){
-            $message = "user realizado";
-        } elseif ($this->params["action"] == "profile"){
+        if ($request->getRequestTarget() == "/api/user/login"){
+            $message = "login realizado";
+        } elseif ($request->getRequestTarget() == "/api/user/info"){
             $message = "Acesso ao profile";
-        } elseif ($this->params["action"] == "updateAddress"){
+        } elseif ($request->getRequestTarget() == "/api/account/updateaddress"){
             $message = "Atualização de endereço";
-        } elseif ($this->params["action"] == "logout") {
+        } elseif ($request->getRequestTarget() == "/api/user/signout") {
             $message = "Logout realizado";
-        } elseif ($this->params["action"] == "Deposito") {
+        } elseif ($request->getRequestTarget() == "/api/transaction/Deposito") {
             $message = "Deposito realizado";
-        } elseif ($this->params["action"] == "Saque") {
+        } elseif ($request->getRequestTarget() == "/api/transaction/Saque") {
             $message = "Saque realizado";
-        } elseif ($this->params["action"] == "Transferencia") {
+        } elseif ($request->getRequestTarget() == "/api/transaction/Transferencia") {
             $message = "Transferencia realizada";
         }
         $this->message = $message;
-    }
-
-    public function logActivity($userId)
-    {
-        $this->setAccountId();
-        $stmt = $this->connection->prepare("
-           INSERT INTO
-                application_log(
-                                user_id,
-                                account_id,
-                                session_identifier,
-                                device,
-                                message                                
-                )
-            VALUES(
-                   :userId,
-                   :accountId,
-                   :sessionId,
-                   :device,
-                   :message                   
-            ) 
-            ");
-
-        $stmt->execute([
-            ":userId" => $userId,
-            ":accountId" => $this->accountId,
-            ":sessionId" => $this->sessionId,
-            ":device" => $this->device,
-            ":message" => $this->message
-        ]);
     }
 }

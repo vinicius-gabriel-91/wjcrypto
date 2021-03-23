@@ -272,6 +272,28 @@ class UserModel
                                             ");
         $stmt->execute([":userId" => $userId]);
     }
+
+    public function verifyIfUserExists($email): bool{
+        $stmt = $this->connection->prepare("
+        SELECT
+            email
+        FROM
+            user
+        WHERE
+            email = :email
+        ");
+
+        $stmt->execute([":email" => $email]);
+
+        $queryResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (count($queryResults) >= 1) {
+            return true;
+        }
+
+        return false;
+
+    }
 }
 
 

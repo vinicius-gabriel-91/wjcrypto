@@ -3,6 +3,7 @@
 namespace WjCrypto\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
+use WjCrypto\Library\AuthManager;
 use WjCrypto\Library\DbConnection;
 use WjCrypto\Model\AccountModel;
 use WjCrypto\Model\LogModel;
@@ -13,13 +14,7 @@ class TransactionController
 
     public function deposit(ServerRequestInterface $request): array
     {
-        if (!UserController::VerifyIfUserIsLogged()){
-            return[
-                'error' => true,
-                'message' => 'Não existe um usuario logado'
-            ];
-        }
-        $user = unserialize($_SESSION["logedUser"]);
+        $user = AuthManager::getLoggedUser();
 
         $params = $request->getParsedBody();
         $amount = floatval($params['amount']);
@@ -43,22 +38,18 @@ class TransactionController
             ];
         }
 
+        LogModel::create($request, 'Deposito realizado');
         $this->logTransaction($account, $params);
 
         return [
             "error" => false,
+            "amount" => $amount,
         ];
     }
 
     public function withdraw(ServerRequestInterface $request)
     {
-        if (!UserController::VerifyIfUserIsLogged()){
-            return[
-                'error' => true,
-                'message' => 'Não existe um usuario logado'
-            ];
-        }
-        $user = unserialize($_SESSION["logedUser"]);
+        $user = AuthManager::getLoggedUser();
 
         $params = $request->getParsedBody();
         $amount = floatval($params['amount']);
@@ -82,6 +73,7 @@ class TransactionController
             ];
         };
 
+        LogModel::create($request, 'Saque realizado');
         $this->logTransaction($account, $params);
 
         return [
@@ -91,13 +83,7 @@ class TransactionController
 
     public function transfer(ServerRequestInterface $request)
     {
-        if (!UserController::VerifyIfUserIsLogged()){
-            return[
-                'error' => true,
-                'message' => 'Não existe um usuario logado'
-            ];
-        }
-        $user = unserialize($_SESSION["logedUser"]);
+        $user = AuthManager::getLoggedUser();
 
         $params = $request->getParsedBody();
         $amount = floatval($params['amount']);
@@ -148,6 +134,7 @@ class TransactionController
             ];
         }
 
+        LogModel::create($request, 'Transferencia realizada');
         $this->logTransaction($originAccount, $params, $targetAcount->getAccountId());
 
         return [
@@ -158,7 +145,7 @@ class TransactionController
 
     public function getTransactionList()
     {
-        $user = unserialize($_SESSION['logedUser']);
+        $user = AuthManager::getLoggedUser();
         $account = new AccountModel();
         $account->getInfo($user->getId());
         $request = new TransactionModel();
@@ -174,7 +161,7 @@ class TransactionController
     {
 
         $log = new TransactionModel();
-        $log->setTypeId(intval($params['transactionId']));
+        $log->setTypeId($params['transactionId']);
         $log->setAccountId($account->getAccountId());
         $log->setValue($params['amount']);
         $log->setTargetId($targetAccount);

@@ -23,12 +23,12 @@ final class RouterFactory
         $router->map('POST', '/api/user/signup', [UserController::class, 'newUser']);
         $router->map('POST', '/api/user/signout', [UserController::class, 'logout']);
         $router->map('GET', '/api/user/info', [UserController::class, 'fetchLoggedUserInfo']);
-        $router->map('POST', '/api/user/updateaddress', [AccountController::class, 'updateAddress']);
-        $router->map('GET', '/api/user/accountinfo', [AccountController::class, 'getAccount']);
-        $router->map('POST', '/api/user/deposit', [TransactionController::class, 'deposit']);
-        $router->map('POST', '/api/user/withdraw', [TransactionController::class, 'withdraw']);
-        $router->map('POST', '/api/user/transfer', [TransactionController::class, 'transfer']);
-        $router->map('GET', '/api/user/transactionlist', [TransactionController::class, 'getTransactionList']);
+        $router->map('POST', '/api/account/updateaddress', [AccountController::class, 'updateAddress']);
+        $router->map('GET', '/api/account/accountinfo', [AccountController::class, 'getAccount']);
+        $router->map('POST', '/api/transaction/Deposito', [TransactionController::class, 'deposit']);
+        $router->map('POST', '/api/transaction/Saque', [TransactionController::class, 'withdraw']);
+        $router->map('POST', '/api/transaction/Transferencia', [TransactionController::class, 'transfer']);
+        $router->map('GET', '/api/transaction/transactionlist', [TransactionController::class, 'getTransactionList']);
 
         return $router;
     }

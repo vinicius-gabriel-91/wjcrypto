@@ -3,6 +3,7 @@
 namespace WjCrypto\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
+use WjCrypto\Library\AuthManager;
 use WjCrypto\Model\AccountModel;
 use WjCrypto\Model\AddressModel;
 use WjCrypto\Model\LogModel;
@@ -13,14 +14,8 @@ class AccountController
 
     public function updateAddress(ServerRequestInterface $request): array
     {
-        if (!UserController::VerifyIfUserIsLogged()){
-            return[
-                'error' => true,
-                'message' => 'Não existe um usuario logado'
-            ];
-        }
+        $user = AuthManager::getLoggedUser();
         $params = $request->getParsedBody();
-        $user = unserialize($_SESSION["logedUser"]);
         $address = new AddressModel();
         $address->getInfo($user->getId());
 
@@ -43,23 +38,18 @@ class AccountController
 
     public function getAccount(){
 
-        if (!UserController::VerifyIfUserIsLogged()){
-            return[
-                'error' => true,
-                'message' => 'Não existe um usuario logado'
-            ];
-        }
-        $user = unserialize($_SESSION["logedUser"]);
+        $user = AuthManager::getLoggedUser();;
         $account = new AccountModel();
         if (!$account->getInfo($user->getId())){
             return[
                 'error' => true,
-                'message' => 'Houve uma falha na busca da conta'
+                'message' => 'Houve uma falha na busca da conta',
             ];
         }
         return [
             'error' => false,
             'account' => $account->toArray(),
+            'name' => $user->getName(),
             ];
 
 

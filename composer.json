@@ -16,7 +16,8 @@
     "ext-xdebug": "*",
     "league/route": "5.x-dev",
     "laminas/laminas-diactoros": "2.6.x-dev",
-    "laminas/laminas-httphandlerrunner": "1.4.x-dev"
+    "laminas/laminas-httphandlerrunner": "1.4.x-dev",
+    "monolog/monolog": "2.x-dev"
   },
       "autoload": {
         "psr-4": {
