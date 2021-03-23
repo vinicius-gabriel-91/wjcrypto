@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<!--    <script src="/js/vendor/jquery.mask.min.js"></script>-->
+    <title>Webjump | Trilha 01 | Wjcrypto</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="../css/site.css"/>
+    <script src="/js/account.js"></script>
+</head>
+
+<body>
+<header>
+    <div class="imgcontainer">
+        <img src="../webjump-entreprise.png" alt="Avatar" class="avatar">
+        <h3>SEJA BEM VINDO <span id="name"></span>!</h3>
+    </div>
+</header>
+
+<div class="header">
+    <div class="profile-button">
+    <a href="../user/profile" id="submit-action-profile" class="btn-action">Profile</a>
+</div>
+
+<div class="signout-button">
+    <button type="submit" id="submit-action-signout">Sair</button>
+</div>
+
+</div>
+
+<div class="account-information">
+    <fieldset style="width: 300px">
+        <legend>Conta:</legend>
+        <label>Numero da conta:</label>
+        <span id="account-number"></span><br>
+        <label>Saldo em conta:</label>
+        <span id="account-balance"></span>
+    </fieldset>
+</div>
+
+<div class="transaction-form">
+    <fieldset style="width: 300px">
+<!--        <form>-->
+            <table>
+                <tbody>
+                    <th>
+                        <td>
+                            <label for="transaction-type">Transação:</label>
+                        </td>
+                        <td>
+                            <select name="transaction-type" id="transaction-type">
+                                <option>Deposito</option>
+                                <option>Saque</option>
+                                <option>Transferencia</option>
+                            </select>
+                        </td>
+                    </th>
+                    <th>
+                        <label for="transaction-amount">Valor:</label>
+                    </th>
+                    <th>
+                        <input type="number" id="transaction-amount">
+                    </th>
+                    <th>
+                        <input type="number" placeholder="Conta de destino" id="target-account">
+                    </th>
+                    <th>
+                        <button id="btn-action-transaction" style="color: white;
+                  width: auto;
+                  font-size: small;
+                  height: auto;
+                  ">Efetivar</button>
+                    </th>
+                </tbody>
+
+
+
+
+
+
+            </table>
+<!--        </form>-->
+    </fieldset>
+</div>
+
+<div class="table">
+    <table id="table-transaction-list" style="width: 50%; border: 1px solid black; ">
+    <thead>
+    <tr>
+        <th style="height: 70px; border: 1px solid black;">Data / Hora</th>
+        <th style="height: 70px; border: 1px solid black;">Transação</th>
+        <th style="height: 70px; border: 1px solid black;">Valor</th>
+        <th style="height: 70px; border: 1px solid black;">Conta de destino</th>
+    </tr>
+    </thead>
+    <tbody id="table-values" style="text-align: center">
+    </tbody>
+</table>
+</div>
+
+<div class="footer">
+
+</div>
+
+</body>
+</html>

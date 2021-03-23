@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt_BR" xmlns="http://www.w3.org/1999/html">
+    <head>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <title>Webjump | Trilha 01 | Wjcrypto</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="../../css/site.css" />
+        <script src="/js/profile.js"></script>
+    </head>
+
+    <body>
+        <header>
+            <div class="imgcontainer">
+                <img src="../../webjump-entreprise.png" alt="Avatar" class="avatar">
+            </div>
+        </header>
+        <fieldset>
+            <legend>Informações do usuario </legend>
+            <label>Nome</label>
+            <input id="user-name" type="text" readonly>
+            <label>Sobrenome</label>
+            <input id="user-surname" type="text" readonly>
+            <label>Email</label>
+            <input id="user-email" type="text" readonly>
+            <label>CPF / CNPJ</label>
+            <input id="user-docnumber" type="text" readonly>
+            <label>RG / Inscrição Estadual</label>
+            <input id="user-taxvat" type="text" readonly>
+        </fieldset>
+        <fieldset>
+            <legend>Endereço</legend>
+            <label>Rua</label>
+            <input id="address-street" type="text">
+            <label>Numero</label>
+            <input id="address-street-number" type="text">
+            <label>Complemento</label>
+            <input id="address-street-number-adition" type="text">
+            <label>Cidade</label>
+            <input id="address-city" type="text">
+            <label>Código Postal</label>
+            <input id="address-postalcode" type="text">
+            <label>Pais</label>
+            <input id="address-country" type="text">
+            <label>Telefone</label>
+            <input id="address-telephone" type="text">
+        </fieldset>
+        <button type="button" id="btn-action-update">Atualizar endereço</button>
+        <a href="/account/">Voltar</a>
+    </body>
+</html>

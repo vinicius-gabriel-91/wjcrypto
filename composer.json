@@ -1,0 +1,27 @@
+{
+  "name": "wbjump/wjcrypto",
+  "description": "Trilha 01 | backend",
+  "minimum-stability": "dev",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Vinicius Gabriel",
+      "email": "vinicius.gabriel@webjump.com.br"
+    }
+  ],
+  "require": {
+    "php": "7.2.*",
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "ext-xdebug": "*",
+    "league/route": "5.x-dev",
+    "laminas/laminas-diactoros": "2.6.x-dev",
+    "laminas/laminas-httphandlerrunner": "1.4.x-dev",
+    "monolog/monolog": "2.x-dev"
+  },
+      "autoload": {
+        "psr-4": {
+            "WjCrypto\\": "app"
+        }
+    }
+}
