@@ -4,14 +4,12 @@ namespace WjCrypto\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
 use WjCrypto\Library\AuthManager;
-use WjCrypto\Library\DbConnection;
 use WjCrypto\Model\AccountModel;
 use WjCrypto\Model\LogModel;
 use WjCrypto\Model\TransactionModel;
 
 class TransactionController
 {
-
     public function deposit(ServerRequestInterface $request): array
     {
         $user = AuthManager::getLoggedUser();
@@ -22,7 +20,8 @@ class TransactionController
         if($amount < 0){
             return [
                 "error" => true,
-                "message" => "O valor de depósito deve ser positivo",];
+                "message" => "O valor de depósito deve ser positivo",
+            ];
         }
 
         $account = new AccountModel();

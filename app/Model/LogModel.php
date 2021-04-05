@@ -46,27 +46,4 @@ class LogModel
             $log->info('inserted values', $args);
         }
     }
-
-    public function setMessage($request)
-    {
-
-        $message = "";
-
-        if ($request->getRequestTarget() == "/api/user/login"){
-            $message = "login realizado";
-        } elseif ($request->getRequestTarget() == "/api/user/info"){
-            $message = "Acesso ao profile";
-        } elseif ($request->getRequestTarget() == "/api/account/updateaddress"){
-            $message = "Atualização de endereço";
-        } elseif ($request->getRequestTarget() == "/api/user/signout") {
-            $message = "Logout realizado";
-        } elseif ($request->getRequestTarget() == "/api/transaction/Deposito") {
-            $message = "Deposito realizado";
-        } elseif ($request->getRequestTarget() == "/api/transaction/Saque") {
-            $message = "Saque realizado";
-        } elseif ($request->getRequestTarget() == "/api/transaction/Transferencia") {
-            $message = "Transferencia realizada";
-        }
-        $this->message = $message;
-    }
 }

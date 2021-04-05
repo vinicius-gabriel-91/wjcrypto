@@ -10,6 +10,22 @@ input[type=text], input[type=password] {
   box-sizing: border-box;
 }
 
+#back-to-account {
+    display: inline-flex;
+    width: 70px;
+    height: 100%;
+    padding: 7px 10px;
+    text-decoration: none;
+    background-color: red;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    color: white;
+}
+#back-to-account:hover{
+    background-color: orangered;
+}
+
 .header{
     top: 0;
     width: 100%;
@@ -30,6 +46,18 @@ input[type=text], input[type=password] {
     align-items: center;
     border-radius: 10px;
 }
+
+.footer {
+    display: flex;
+    width: 70px;
+    height: 100%;
+    background-color: blue;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+}
 .header a {
     color: white;
     text-decoration: none;
@@ -46,6 +74,7 @@ input[type=text], input[type=password] {
     width: 70px;
     height: 100%;
     background-color: red;
+    color: red;
     justify-content: center;
     align-items: center;
     margin-left: 5px;
@@ -53,20 +82,65 @@ input[type=text], input[type=password] {
 }
 
 /* Set a style for all buttons */
-button {
-      background-color: #16911b;
-      color: #fff;
-      /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
-      padding: 15px 20px;
-      font-size: 20px;
-      text-decoration: none;
-      cursor: pointer;
+#btn-action-transaction {
+    background-color: #16911b;
+    color: #fff;
+    /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
+    padding: 15px 20px;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
     border-radius: 10px;
 }
 
-button:hover {
-    background-color: #147318;
+
+#submit-action-login {
+    background-color: #16911b;
+    color: #fff;
+    /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
+    padding: 5px 20px;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 10px;
 }
+
+#submit-action-new-user {
+    background-color: #16911b;
+    color: #fff;
+    /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
+    padding: 5px 20px;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+#bnt-action-newuser {
+    background-color: #16911b;
+    color: #fff;
+    /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
+    padding: 5px 20px;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+#btn-action-update {
+    background-color: #16911b;
+    color: #fff;
+    /*text-shadow: 1px 1px 0 rgba(0,0,0,0.25);*/
+    padding: 5px 10px;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+/*button:hover {*/
+/*    background-color: #147318;*/
+/*}*/
 
 #table-transaction-list {
     border: 1px solid black;

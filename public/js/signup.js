@@ -27,6 +27,7 @@ $(document).ready(function() {
                 console.log(response)
                 alert(response.message);
             } else {
+                alert("Usuario criado com sucesso")
                 window.location = '/user/';
             }
         }).fail(function(jqXHR, textStatus, errorThrown) {
